@@ -758,6 +758,17 @@ onMounted(() => {
         showVideoSheet.value = false;
       }
     });
+    
+    function notkeycombo(event: KeyboardEvent) {
+      return !(event.ctrlKey || event.shiftKey || event.metaKey);
+    }
+    window.addEventListener("keyup", (event: KeyboardEvent) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if ([" ", "Spacebar", "Space"].includes(event.key) || event.code == "Space" && notkeycombo(event)) {
+        playing.value = !playing.value;
+      }
+    });
 
     window.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
