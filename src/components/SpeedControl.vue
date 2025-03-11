@@ -154,27 +154,7 @@
         :show-tooltip="!mobile"
       ></icon-button>
       
-      
 
-      <icon-button 
-        id="reset"
-        :fa-icon="'home'"
-        @activate="
-          () => {
-            playbackRate = 100;
-            timePlaying = false;
-            forceRate = false;
-            emit('reset');
-          }
-        "
-        :color="color"
-        :focus-color="color"
-        tooltip-text="Reset"
-        tooltip-location="top"
-        tooltip-offset="5px"
-        faSize="1x"
-        :show-tooltip="!mobile"
-      ></icon-button>
 
       <v-dialog
         v-if="!useInline"
@@ -279,6 +259,26 @@
           "
         />
       </div>
+
+      <icon-button 
+        id="reset"
+        :fa-icon="'home'"
+        @activate="
+          () => {
+            playbackRate = 100;
+            timePlaying = false;
+            forceRate = false;
+            emit('reset');
+          }
+        "
+        :color="color"
+        :focus-color="color"
+        tooltip-text="Reset"
+        tooltip-location="top"
+        tooltip-offset="5px"
+        faSize="1x"
+        :show-tooltip="!mobile"
+      ></icon-button>
     </div>
     
     <div v-if="showText" id="speed-text">{{ Math.round(playbackRate) }}x {{ timePlaying ? '' : '(Paused)'  }}</div>
