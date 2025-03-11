@@ -158,7 +158,7 @@
 
       <icon-button 
         id="reset"
-        :fa-icon="'rotate'"
+        :fa-icon="'home'"
         @activate="
           () => {
             playbackRate = 100;
