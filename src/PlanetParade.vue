@@ -257,7 +257,16 @@
         :maxSpeed="10000"
         show-text
         @reset="() => {
-          selectedTime = Date.now();
+          const altTime = getTimeforSunAlt(2).setting;
+          if (altTime) {
+            selectedTime = altTime;
+            nextTick(() => {
+            resetCamera(new Date(altTime));
+          });
+          } else {
+            // reasonable fallback
+            selectedTime = Date.now();
+          }
           wwtStats.timeResetCount += 1;
         }"
         @update:reverse="(_reverse: boolean) => {
@@ -1091,8 +1100,10 @@ async function updateUserData() {
   });
 }
 
-async function resetCamera(): Promise<void> {
-  const time = store.currentTime;
+async function resetCamera(time?: Date): Promise<void> {
+  if (time === undefined) {
+    time = store.currentTime;
+  }
 
   const latRad = selectedLocation.value.latitudeDeg * D2R;
   const lonRad = selectedLocation.value.longitudeDeg * D2R;
