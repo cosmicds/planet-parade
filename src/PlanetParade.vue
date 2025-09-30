@@ -575,6 +575,7 @@ import { MapBoxFeature, MapBoxFeatureCollection, geocodingInfoForSearch, textFor
 import { useSun } from './useSun';
 
 const STORY_DATA_URL = `${API_BASE_URL}/planet-parade/data`;
+const STORY_RATING_URL = `${API_BASE_URL}/stories/user-experience/planet-parade`;
 
 const UUID_KEY = "eclipse-mini-uuid" as const;
 const OPT_OUT_KEY = "eclipse-mini-optout" as const;
@@ -652,6 +653,8 @@ const wwtStats = markRaw({
 
 const optOut = typeof storedOptOut === "string" ? storedOptOut === "true" : null;
 const responseOptOut = ref(optOut);
+
+const showRating = ref(false);
 
 const geocodingOptions = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -819,6 +822,7 @@ onMounted(() => {
     // });
     
     createUserEntry();
+    ratingSetup();
 
     setInterval(() => {
       if (playing.value) {
@@ -967,6 +971,30 @@ function searchProvider(text: string): Promise<MapBoxFeatureCollection> {
 function updateLocationFromMap(location: LocationDeg) {
   selectedLocation.value = location;
   userSelectedMapLocations.push([location.latitudeDeg, location.longitudeDeg]);
+}
+
+async function ratingSetup() {
+  if (responseOptOut.value) {
+    return;
+  }
+
+  const existsResponse = await fetch(`${STORY_RATING_URL}/${uuid}`, {
+    method: "GET",
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
+  });
+
+  // NB: If we want to ask multiple questions, this logic can be adjusted
+  const existsContent = await existsResponse.json();
+  const exists = existsResponse.status === 200 && existsContent.ratings?.length > 0;
+
+  if (exists) {
+    return;
+  }
+
+  setTimeout(() => {
+    showRating.value = true; 
+  }, 30_000);
 }
 
 async function createUserEntry() {
