@@ -554,6 +554,39 @@
       </v-card>
     </v-dialog>
 
+  <v-container>
+    <v-expand-transition>
+      <user-experience
+        v-if="showRating"
+        :question="question"
+        icon-size="3x"
+        @dismiss="(_rating: UserExperienceRating | null, _comments: string | null) => {
+          showRating = false;
+        }"
+        @rating="(rating: UserExperienceRating | null) => {
+          currentRating = rating;
+          updateUserExperienceInfo(currentRating, currentComments);
+        }"
+        @finish="(rating: UserExperienceRating | null, comments: string | null) => {
+          currentRating = rating;
+          currentComments = comments;
+          updateUserExperienceInfo(currentRating, currentComments)
+          showRating = false;
+        }"
+      >
+        <template #footer>
+          <v-btn
+            color="#BDBDBD"
+            href="https://www.cfa.harvard.edu/privacy-statement"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+          Privacy Policy
+          </v-btn>
+        </template>
+      </user-experience>
+      </v-expand-transition>
+  </v-container>
   </div>
 </v-app>
 </template>
@@ -568,7 +601,7 @@ import { useDisplay } from "vuetify";
 import { v4 } from "uuid";
 
 import { useTimezone } from "./timezones";
-import { horizontalToEquatorial, skyOpacityForSunAlt, getJulian, equatorialToHorizontal } from "./utils";
+import { horizontalToEquatorial, skyOpacityForSunAlt, getJulian, equatorialToHorizontal, type UserExperienceRating } from "./utils";
 import { resetAltAzGridText, makeAltAzGridText, drawPlanets, renderOneFrame, drawEcliptic, drawSkyOverlays } from "./wwt-hacks";
 import { MapBoxFeature, MapBoxFeatureCollection, geocodingInfoForSearch, textForLocation } from "@cosmicds/vue-toolkit/src/mapbox";
 // import { useGeolocation } from "@cosmicds/vue-toolkit";
@@ -585,6 +618,11 @@ const storedOptOut = window.localStorage.getItem(OPT_OUT_KEY);
 const skipIntroContent = window.localStorage.getItem(SKIP_INTRO_CONTENT_KEY)?.toLowerCase() === "true";
 const existingUser = maybeUUID !== null;
 const uuid = maybeUUID ?? v4();
+const question = Math.random() > 0.5 ? 
+  "Is this interesting?" :
+  "Are you learning something new?";
+const currentRating = ref<UserExperienceRating | null>(null);
+const currentComments = ref<string | null>(null);
 if (!existingUser) {
   window.localStorage.setItem(UUID_KEY, uuid);
 }
@@ -822,7 +860,7 @@ onMounted(() => {
     // });
     
     createUserEntry();
-    ratingSetup();
+    ratingDisplaySetup();
 
     setInterval(() => {
       if (playing.value) {
@@ -872,6 +910,7 @@ const cssVars = computed(() => {
     "--accent-color": accentColor.value,
     "--accent-color2": accentColor2.value,
     "--app-content-height": showTextSheet.value ? "66%" : "100%",
+    "--rating-width": smallSize.value ? "100%" : "75%",
   };
 });
 
@@ -973,7 +1012,7 @@ function updateLocationFromMap(location: LocationDeg) {
   userSelectedMapLocations.push([location.latitudeDeg, location.longitudeDeg]);
 }
 
-async function ratingSetup() {
+async function ratingDisplaySetup() {
   if (responseOptOut.value) {
     return;
   }
@@ -994,7 +1033,31 @@ async function ratingSetup() {
 
   setTimeout(() => {
     showRating.value = true; 
-  }, 30_000);
+  }, 1_000);
+}
+
+function updateUserExperienceInfo(rating: UserExperienceRating | null, comments: string | null) {
+  const body: Record<string, unknown> = {
+    uuid,
+    question,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    story_name: "planet-parade",
+  };
+  if (rating) {
+    body.rating = rating;
+  }
+  if (comments) {
+    body.comments = comments;
+  }
+  fetch(STORY_RATING_URL, {
+    method: "PUT",
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
 }
 
 async function createUserEntry() {
@@ -1005,7 +1068,7 @@ async function createUserEntry() {
   const response = await fetch(`${STORY_DATA_URL}/${uuid}`, {
     method: "GET",
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
+    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" },
   });
   const content = await response.json();
   const exists = response.status === 200 && content.response?.user_uuid != undefined;
@@ -1959,6 +2022,30 @@ video {
     height: 35px;
     vertical-align: middle;
     margin: 2px;
+  }
+}
+
+.rating-root {
+  position: absolute;
+  bottom: 0;
+  padding: 5px;
+  width: var(--rating-width);
+  left: 50%;
+  transform: translateX(-50%);
+  gap: 0 !important;
+  border: solid 1px white;
+  border-radius: 10px;
+
+  .comments-box {
+    width: 100%;
+  }
+
+  .v-card-text {
+    padding-bottom: 0;
+  }
+
+  .v-card-actions {
+    padding: 0;
   }
 }
 
