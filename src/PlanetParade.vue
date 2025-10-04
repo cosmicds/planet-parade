@@ -578,6 +578,7 @@
       >
         <template #footer>
           <v-btn
+            class="privacy-button"
             color="#BDBDBD"
             href="https://www.cfa.harvard.edu/privacy-statement"
             target="_blank"
@@ -912,7 +913,7 @@ const cssVars = computed(() => {
     "--accent-color": accentColor.value,
     "--accent-color2": accentColor2.value,
     "--app-content-height": showTextSheet.value ? "66%" : "100%",
-    "--rating-width": smallSize.value ? "100%" : "75%",
+    // "--rating-width": smallSize.value ? "40%" : "40%",
   };
 });
 
@@ -2029,17 +2030,35 @@ video {
 
 .rating-root {
   position: absolute;
+  right: 5px;
   bottom: 0;
   padding: 5px;
-  width: var(--rating-width);
-  left: 50%;
-  transform: translateX(-50%);
+  width: fit-content;
+  // left: 50%;
+  // transform: translateX(-50%);
   gap: 0 !important;
-  border: solid 1px white;
+  border: solid 1px #EFEFEF;
   border-radius: 10px;
+  background-color: #222222;
+  opacity: 0.95;
+
+  .rating-title {
+    color: #EFEFEF;
+    font-size: var(--default-font-size);
+  }
+
+  .rating-icon-row {
+    
+    padding: 0px;
+
+    .svg-inline--fa {
+      height: 30px;
+    }
+  }
 
   .comments-box {
     width: 100%;
+    margin-top: 20px;
   }
 
   .v-card-text {
@@ -2048,6 +2067,17 @@ video {
 
   .v-card-actions {
     padding: 0;
+  }
+
+  .privacy-button {
+    font-size: 10px;
+    position: absolute;
+    left: 5px;
+  }
+
+  .v-btn.bg-success {
+    position: absolute;
+    right: 5px;
   }
 }
 
