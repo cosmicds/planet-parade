@@ -1036,7 +1036,7 @@ async function ratingDisplaySetup() {
 
   setTimeout(() => {
     showRating.value = true; 
-  }, 1_000);
+  }, 35_000);
 }
 
 function updateUserExperienceInfo(rating: UserExperienceRating | null, comments: string | null) {
