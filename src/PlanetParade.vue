@@ -2030,18 +2030,18 @@ video {
 }
 
 .rating-root {
-  position: absolute;
+  position: absolute !important;
   right: 5px;
   bottom: 0;
   padding: 5px;
-  width: fit-content;
+  width: fit-content !important;
   // left: 50%;
   // transform: translateX(-50%);
   gap: 0 !important;
-  border: solid 1px #EFEFEF;
-  border-radius: 10px;
-  background-color: #222222;
-  opacity: 0.95;
+  border: solid 1px #EFEFEF !important;
+  border-radius: 10px !important;
+  background-color: #222222 !important;
+  opacity: 0.95 !important;
   z-index: 20000;
 
   .rating-title {
