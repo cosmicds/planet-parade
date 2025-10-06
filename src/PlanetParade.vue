@@ -396,6 +396,7 @@
       location="bottom"
       v-model="showTextSheet"
       transition="dialog-bottom-transition"
+      :retain-focus="!showRating"
     >
       <v-card height="100%">
         <v-tabs
@@ -1036,7 +1037,7 @@ async function ratingDisplaySetup() {
 
   setTimeout(() => {
     showRating.value = true; 
-  }, 35_000);
+  }, 40_000);
 }
 
 function updateUserExperienceInfo(rating: UserExperienceRating | null, comments: string | null) {
@@ -2041,6 +2042,7 @@ video {
   border-radius: 10px;
   background-color: #222222;
   opacity: 0.95;
+  z-index: 20000;
 
   .rating-title {
     color: #EFEFEF;
