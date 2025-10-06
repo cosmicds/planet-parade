@@ -1689,8 +1689,8 @@ video {
 
 .info-card {
   height: fit-content;
-  padding-inline: 30px;
-  padding-block: 20px;
+  padding-inline: 30px !important;
+  padding-block: 20px !important;
   max-width: 500px;
 
   @media (max-width: 600px) {
@@ -1967,7 +1967,7 @@ video {
 }
 
 .dtp-close-button {
-  position: absolute;
+  position: absolute !important;
   top: 0.5em;
   right: 0.5em;
   border-radius: 50%;
