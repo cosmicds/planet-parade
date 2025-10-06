@@ -560,7 +560,7 @@
   <v-container>
     <v-expand-transition>
       <user-experience
-        v-if="showRating"
+        v-hide="true"
         :question="question"
         icon-size="3x"
         @dismiss="(_rating: UserExperienceRating | null, _comments: string | null) => {
