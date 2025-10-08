@@ -560,7 +560,7 @@
   <v-container>
     <v-expand-transition>
       <user-experience
-        v-hide="true"
+        v-show="showRating"
         :question="question"
         icon-size="3x"
         @dismiss="(_rating: UserExperienceRating | null, _comments: string | null) => {
@@ -612,7 +612,7 @@ import { MapBoxFeature, MapBoxFeatureCollection, geocodingInfoForSearch, textFor
 import { useSun } from './useSun';
 
 const STORY_DATA_URL = `${API_BASE_URL}/planet-parade/data`;
-const STORY_RATING_URL = `${API_BASE_URL}/stories/user-experience/planet-parade`;
+const STORY_RATING_URL = `${API_BASE_URL}/planet-parade/user-experience`;
 
 const UUID_KEY = "eclipse-mini-uuid" as const;
 const OPT_OUT_KEY = "eclipse-mini-optout" as const;
