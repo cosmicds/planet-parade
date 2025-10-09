@@ -623,7 +623,7 @@ const skipIntroContent = window.localStorage.getItem(SKIP_INTRO_CONTENT_KEY)?.to
 const existingUser = maybeUUID !== null;
 const uuid = maybeUUID ?? v4();
 const question = Math.random() > 0.5 ? 
-  "Is this interesting?" :
+  "Does this spark your curiosity?" :
   "Are you learning something new?";
 const currentRating = ref<UserExperienceRating | null>(null);
 const currentComments = ref<string | null>(null);
