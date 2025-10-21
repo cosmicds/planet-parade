@@ -913,8 +913,6 @@ const smallSize = computed(() => smAndDown.value);
 
 const mobile = computed(() => smallSize.value && touchscreen);
 
-const xSmallSize = computed(() => xs.value);
-
 /* This lets us inject component data into element CSS */
 const cssVars = computed(() => {
   return {
