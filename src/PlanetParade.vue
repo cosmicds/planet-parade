@@ -263,10 +263,7 @@
             selectedTime = altTime;
             nextTick(() => {
             resetCamera(new Date(altTime));
-          });
-          } else {
-            // reasonable fallback
-            selectedTime = Date.now();
+            });
           }
           wwtStats.timeResetCount += 1;
         }"
