@@ -190,7 +190,7 @@
         
         <div id="planet-visibility-box" class="collapsable-control control-icon-wrapper">
           <div class="controls-top-row planet-visibility">
-            <div class="planet-visibility-title">Above Horizon</div>
+            <div class="planet-visibility-title">Risen</div>
             <font-awesome-icon
               size="lg"
               class="tab-focusable"
@@ -1579,6 +1579,7 @@ li {
     line-height: calc(1 * var(--default-line-height));
     margin-bottom: 5px;
     margin-right: 5px;
+    font-weight: bold;
   }
   
   #planet-visibility-label {
