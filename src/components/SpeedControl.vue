@@ -212,6 +212,7 @@
               playbackVisible = false;
             }
           "
+          v-click-outside="onClickOutside"
         />
       </v-dialog>
       <div v-if="useInline" id="inline-speed-control">
@@ -471,6 +472,7 @@ function onClickOutside() {
   --tick-font-size: 12px;
   margin-bottom: calc(2.5rem + 5px);
   padding-right: 1rem;
+  margin-inline: auto;
   
 }
 
@@ -493,6 +495,7 @@ function onClickOutside() {
     left: calc(50% - 11px); // 9px is half the size close button
     --off: 0; //calc(50%);
     transform: translateX(-50%) translateY(var(--off)) !important;
+    margin-bottom: calc(2.5rem + 5px);
   }
 
 }
