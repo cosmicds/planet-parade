@@ -257,6 +257,7 @@
         :maxSpeed="10000"
         show-text
         @reset="() => {
+          selectedTime = Date.now();
           const altTime = getTimeforSunAlt(2).setting;
           if (altTime) {
             selectedTime = altTime;
