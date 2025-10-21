@@ -1,6 +1,6 @@
 import Vue, { createApp, type Plugin } from "vue";
 
-import { CreditLogos, FundingAcknowledgement, GeolocationButton, IconButton, LocationSelector } from "@cosmicds/vue-toolkit";
+import { CreditLogos, FundingAcknowledgement, GeolocationButton, IconButton, LocationSelector, UserExperience } from "@cosmicds/vue-toolkit";
 import PlanetParade from "./PlanetParade.vue";
 
 import vuetify from "../plugins/vuetify";
@@ -16,7 +16,6 @@ import SpeedControl from "./components/SpeedControl.vue";
 import TimeDisplay from "./components/TimeDisplay.vue";
 import SplashScreen from "./SplashScreen.vue";
 import { FocusTrap } from "focus-trap-vue";
-
 
 
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -104,6 +103,7 @@ createApp(PlanetParade, {
   .component('speed-control', SpeedControl)
   .component('playback-control', PlaybackControl)
   .component('splash-screen', SplashScreen)
+  .component('user-experience', UserExperience)
   .component('focus-trap', FocusTrap)
 
   // Mount

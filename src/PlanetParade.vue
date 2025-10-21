@@ -312,7 +312,9 @@
         </icon-button>
       </div>
       <div id="body-logos" v-if="!smallSize">
-        <credit-logos/>
+        <credit-logos
+          :default-logos="['cosmicds', 'wwt', 'sciact', 'nasa']"
+        />
       </div>
     </div>
 
@@ -403,6 +405,7 @@
       location="bottom"
       v-model="showTextSheet"
       transition="dialog-bottom-transition"
+      :retain-focus="!showRating"
     >
       <v-card height="100%">
         <v-tabs
@@ -563,6 +566,40 @@
       </v-card>
     </v-dialog>
 
+  <v-container>
+    <v-expand-transition>
+      <user-experience
+        v-show="showRating"
+        :question="question"
+        icon-size="3x"
+        @dismiss="(_rating: UserExperienceRating | null, _comments: string | null) => {
+          showRating = false;
+        }"
+        @rating="(rating: UserExperienceRating | null) => {
+          currentRating = rating;
+          updateUserExperienceInfo(currentRating, currentComments);
+        }"
+        @finish="(rating: UserExperienceRating | null, comments: string | null) => {
+          currentRating = rating;
+          currentComments = comments;
+          updateUserExperienceInfo(currentRating, currentComments)
+          showRating = false;
+        }"
+      >
+        <template #footer>
+          <v-btn
+            class="privacy-button"
+            color="#BDBDBD"
+            href="https://www.cfa.harvard.edu/privacy-statement"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+          Privacy Policy
+          </v-btn>
+        </template>
+      </user-experience>
+      </v-expand-transition>
+  </v-container>
   </div>
 </v-app>
 </template>
@@ -577,13 +614,14 @@ import { useDisplay } from "vuetify";
 import { v4 } from "uuid";
 
 import { useTimezone } from "./timezones";
-import { horizontalToEquatorial, skyOpacityForSunAlt, getJulian, equatorialToHorizontal } from "./utils";
+import { horizontalToEquatorial, skyOpacityForSunAlt, getJulian, equatorialToHorizontal, type UserExperienceRating } from "./utils";
 import { resetAltAzGridText, makeAltAzGridText, drawPlanets, renderOneFrame, drawEcliptic, drawSkyOverlays } from "./wwt-hacks";
 import { MapBoxFeature, MapBoxFeatureCollection, geocodingInfoForSearch, textForLocation } from "@cosmicds/vue-toolkit/src/mapbox";
 // import { useGeolocation } from "@cosmicds/vue-toolkit";
 import { useSun } from './useSun';
 
 const STORY_DATA_URL = `${API_BASE_URL}/planet-parade/data`;
+const STORY_RATING_URL = `${API_BASE_URL}/planet-parade/user-experience`;
 
 const UUID_KEY = "eclipse-mini-uuid" as const;
 const OPT_OUT_KEY = "eclipse-mini-optout" as const;
@@ -593,6 +631,11 @@ const storedOptOut = window.localStorage.getItem(OPT_OUT_KEY);
 const skipIntroContent = window.localStorage.getItem(SKIP_INTRO_CONTENT_KEY)?.toLowerCase() === "true";
 const existingUser = maybeUUID !== null;
 const uuid = maybeUUID ?? v4();
+const question = Math.random() > 0.5 ? 
+  "Does this spark your curiosity?" :
+  "Are you learning something new?";
+const currentRating = ref<UserExperienceRating | null>(null);
+const currentComments = ref<string | null>(null);
 if (!existingUser) {
   window.localStorage.setItem(UUID_KEY, uuid);
 }
@@ -661,6 +704,8 @@ const wwtStats = markRaw({
 
 const optOut = typeof storedOptOut === "string" ? storedOptOut === "true" : null;
 const responseOptOut = ref(optOut);
+
+const showRating = ref(false);
 
 const geocodingOptions = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -805,7 +850,7 @@ onMounted(() => {
       selectedTime.value = altTime;
     }
     wwtStats.startTime = selectedTime.value;
-    setTimeout(() => resetCamera().then(() => positionSet.value = true), 100);
+    setTimeout(() => resetCamera().then(() => positionSet.value = true), 300);
 
     store.applySetting(["localHorizonMode", true]);
     store.applySetting(["altAzGridColor", Color.fromArgb(180, 133, 201, 254)]);
@@ -828,6 +873,7 @@ onMounted(() => {
     // });
     
     createUserEntry();
+    ratingDisplaySetup();
 
     setInterval(() => {
       if (playing.value) {
@@ -877,6 +923,7 @@ const cssVars = computed(() => {
     "--accent-color": accentColor.value,
     "--accent-color2": accentColor2.value,
     "--app-content-height": showTextSheet.value ? "66%" : "100%",
+    // "--rating-width": smallSize.value ? "40%" : "40%",
   };
 });
 
@@ -978,6 +1025,54 @@ function updateLocationFromMap(location: LocationDeg) {
   userSelectedMapLocations.push([location.latitudeDeg, location.longitudeDeg]);
 }
 
+async function ratingDisplaySetup() {
+  if (responseOptOut.value) {
+    return;
+  }
+
+  const existsResponse = await fetch(`${STORY_RATING_URL}/${uuid}`, {
+    method: "GET",
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
+  });
+
+  // NB: If we want to ask multiple questions, this logic can be adjusted
+  const existsContent = await existsResponse.json();
+  const exists = existsResponse.status === 200 && existsContent.ratings?.length > 0;
+
+  if (exists) {
+    return;
+  }
+
+  setTimeout(() => {
+    showRating.value = true; 
+  }, 40_000);
+}
+
+function updateUserExperienceInfo(rating: UserExperienceRating | null, comments: string | null) {
+  const body: Record<string, unknown> = {
+    uuid,
+    question,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    story_name: "planet-parade",
+  };
+  if (rating) {
+    body.rating = rating;
+  }
+  if (comments) {
+    body.comments = comments;
+  }
+  fetch(STORY_RATING_URL, {
+    method: "PUT",
+    headers: {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
 async function createUserEntry() {
   if (responseOptOut.value) {
     return;
@@ -986,7 +1081,7 @@ async function createUserEntry() {
   const response = await fetch(`${STORY_DATA_URL}/${uuid}`, {
     method: "GET",
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
+    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" },
   });
   const content = await response.json();
   const exists = response.status === 200 && content.response?.user_uuid != undefined;
@@ -1605,8 +1700,8 @@ video {
 
 .info-card {
   height: fit-content;
-  padding-inline: 30px;
-  padding-block: 20px;
+  padding-inline: 30px !important;
+  padding-block: 20px !important;
   max-width: 500px;
 
   @media (max-width: 600px) {
@@ -1883,7 +1978,7 @@ video {
 }
 
 .dtp-close-button {
-  position: absolute;
+  position: absolute !important;
   top: 0.5em;
   right: 0.5em;
   border-radius: 50%;
@@ -1942,6 +2037,60 @@ video {
     height: 35px;
     vertical-align: middle;
     margin: 2px;
+  }
+}
+
+.rating-root {
+  position: absolute !important;
+  right: 5px;
+  bottom: 0;
+  padding: 5px;
+  width: fit-content !important;
+  // left: 50%;
+  // transform: translateX(-50%);
+  gap: 0 !important;
+  border: solid 1px #EFEFEF !important;
+  border-radius: 10px !important;
+  background-color: #222222 !important;
+  opacity: 0.95 !important;
+  z-index: 20000;
+
+  .rating-title {
+    color: #EFEFEF;
+    font-size: var(--default-font-size);
+  }
+
+  .rating-icon-row {
+    
+    padding: 0px;
+
+    .svg-inline--fa {
+      height: 30px;
+    }
+  }
+
+  .comments-box {
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .v-card-text {
+    padding-bottom: 0;
+  }
+
+  .v-card-actions {
+    padding: 0;
+  }
+
+  .privacy-button {
+    font-size: 10px;
+    position: absolute;
+    left: 5px;
+  }
+
+  .v-btn.bg-success {
+    position: absolute;
+    right: 5px;
   }
 }
 

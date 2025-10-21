@@ -2,11 +2,12 @@
   "draft": false,
   "version": "0.0.0",
   "dependencies": {
-    "@cosmicds/vue-toolkit": "^0.3.0",
+    "@cosmicds/vue-toolkit": "~0.6.0",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/vue-fontawesome": "^3.0.5",
     "@mdi/font": "^7.4.47",
+    "@wwtelescope/engine": "7.30.1",
     "@wwtelescope/engine-pinia": "^0.9.0",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
