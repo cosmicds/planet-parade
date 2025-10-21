@@ -1341,7 +1341,7 @@ html {
   margin: 0;
   padding: 0;
   background-color: #000;
-  overflow: hidden;
+  overflow: auto !important;
 
   
   -ms-overflow-style: none;
@@ -1354,7 +1354,7 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: auto !important;
 
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
