@@ -83,6 +83,65 @@
 
     <div id="top-content">
       <div id="left-buttons">
+        <div id="location-info">
+          <icon-button
+            v-model="showLocationSelector"
+            fa-icon="location-dot"
+            :color="buttonColor"
+            tooltip-text="Select Location"
+            tooltip-location="start"
+          ></icon-button>
+          <v-dialog
+            v-model="showLocationSelector"
+            max-width="fit-content"
+            transition="slide-y-transition"
+          >
+            <v-card>
+              <div id="geolocation-close">
+                <font-awesome-icon
+                  style="cursor: pointer; z-index: 1000;"
+                  icon="xmark"
+                  size="xl"
+                  @click="showLocationSelector = false"
+                  @keyup.enter="showLocationSelector = false"
+                  tabindex="0"
+                  color="black"
+                ></font-awesome-icon>
+              </div>
+              <div id="geolocation-controls">
+                <geolocation-button
+                  id="location"
+                  size="30px"
+                  density="default"
+                  elevation="5"
+                  :color="accentColor"
+                  @geolocation="selectedLocation = {longitudeDeg: $event.longitude, latitudeDeg: $event.latitude}"
+                />
+                <location-search
+                  :class="['location-search']"
+                  small
+                  button-size="xl"
+                  :accent-color="accentColor"
+                  :search-provider="searchProvider"
+                  @set-location="setLocationFromSearchFeature"
+                  @error="searchErrorMessage = $event"
+                >
+                </location-search>
+              </div>
+              <location-selector
+                :model-value="selectedLocation"
+                @update:modelValue="updateLocationFromMap"
+              />
+
+            </v-card>
+          </v-dialog>
+          <div tabindex="0" id="my-location-label"  @click="showLocationSelector=true" @keyup.enter="showLocationSelector=true">
+            <div>View from:</div>
+            <div>{{ selectedLocationText != '' ? selectedLocationText : 'Cambridge, MA (default)' }}</div> 
+          </div>
+        </div>
+
+
         <icon-button
           v-model="showTextSheet"
           fa-icon="info"
@@ -100,60 +159,7 @@
         >
         </icon-button>
       </div>
-      <div id="center-buttons">
-        <icon-button
-          v-model="showLocationSelector"
-          fa-icon="location-dot"
-          :color="buttonColor"
-          tooltip-text="Select Location"
-          tooltip-location="start"
-        ></icon-button>
-        <v-dialog
-          v-model="showLocationSelector"
-          max-width="fit-content"
-          transition="slide-y-transition"
-        >
-          <v-card>
-            <div id="geolocation-close">
-              <font-awesome-icon
-                style="cursor: pointer; z-index: 1000;"
-                icon="xmark"
-                size="xl"
-                @click="showLocationSelector = false"
-                @keyup.enter="showLocationSelector = false"
-                tabindex="0"
-                color="black"
-              ></font-awesome-icon>
-            </div>
-            <div id="geolocation-controls">
-              <geolocation-button
-                id="location"
-                size="30px"
-                density="default"
-                elevation="5"
-                :color="accentColor"
-                @geolocation="selectedLocation = {longitudeDeg: $event.longitude, latitudeDeg: $event.latitude}"
-              />
-              <location-search
-                :class="['location-search']"
-                small
-                button-size="xl"
-                :accent-color="accentColor"
-                :search-provider="searchProvider"
-                @set-location="setLocationFromSearchFeature"
-                @error="searchErrorMessage = $event"
-              >
-              </location-search>
-            </div>
-            <location-selector
-              :model-value="selectedLocation"
-              @update:modelValue="updateLocationFromMap"
-            />
 
-          </v-card>
-        </v-dialog>
-        <span tabindex="0" id="my-location-label" class="elevation-1" @click="showLocationSelector=true" @keyup.enter="showLocationSelector=true">{{ xSmallSize ? 'Location' : 'Current location'}}: {{ selectedLocationText != '' ? selectedLocationText : 'Cambridge, MA (default)' }}</span>
-      </div>
       <div id="right-buttons">
         <div id="controls" class="collapsable-control control-icon-wrapper">
           <div class="controls-top-row">
@@ -1448,25 +1454,29 @@ li {
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  .icon-wrapper {
+    width: 30%;
+    height: 20%;
+    flex-shrink: 0;
+  }
 }
 
-#center-buttons {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+#location-info {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
-  
+  justify-content: center;
+  gap: 10px;
+
   #my-location-label {
-    background-color: #ccc;
-    padding-inline: 5px;
-    padding-block: 2px;
-    border-radius: 1em;
-    color: black;
     font-size: var(--default-font-size);
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    color: var(--accent-color);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    font-weight: bold;
     pointer-events: auto;
     cursor:pointer
   }
