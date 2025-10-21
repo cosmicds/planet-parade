@@ -154,27 +154,7 @@
         :show-tooltip="!mobile"
       ></icon-button>
       
-      
 
-      <icon-button 
-        id="reset"
-        :fa-icon="'rotate'"
-        @activate="
-          () => {
-            playbackRate = 100;
-            timePlaying = false;
-            forceRate = false;
-            emit('reset');
-          }
-        "
-        :color="color"
-        :focus-color="color"
-        tooltip-text="Reset"
-        tooltip-location="top"
-        tooltip-offset="5px"
-        faSize="1x"
-        :show-tooltip="!mobile"
-      ></icon-button>
 
       <v-dialog
         v-if="!useInline"
@@ -232,6 +212,7 @@
               playbackVisible = false;
             }
           "
+          v-click-outside="onClickOutside"
         />
       </v-dialog>
       <div v-if="useInline" id="inline-speed-control">
@@ -279,6 +260,26 @@
           "
         />
       </div>
+
+      <icon-button 
+        id="reset"
+        :fa-icon="'home'"
+        @activate="
+          () => {
+            playbackRate = 100;
+            timePlaying = false;
+            forceRate = false;
+            emit('reset');
+          }
+        "
+        :color="color"
+        :focus-color="color"
+        tooltip-text="Reset"
+        tooltip-location="top"
+        tooltip-offset="5px"
+        faSize="1x"
+        :show-tooltip="!mobile"
+      ></icon-button>
     </div>
     
     <div v-if="showText" id="speed-text">{{ Math.round(playbackRate) }}x {{ timePlaying ? '' : '(Paused)'  }}</div>
@@ -471,6 +472,7 @@ function onClickOutside() {
   --tick-font-size: 12px;
   margin-bottom: calc(2.5rem + 5px);
   padding-right: 1rem;
+  margin-inline: auto;
   
 }
 
@@ -493,6 +495,7 @@ function onClickOutside() {
     left: calc(50% - 11px); // 9px is half the size close button
     --off: 0; //calc(50%);
     transform: translateX(-50%) translateY(var(--off)) !important;
+    margin-bottom: calc(2.5rem + 5px);
   }
 
 }
