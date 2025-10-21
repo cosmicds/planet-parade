@@ -49,7 +49,7 @@
               </strong>
               to update, or press <font-awesome-icon class="bullet-icon" icon="play" style="color: #f4ba3e" /> to advance time.</li>
               <li>Go outdoors and find the planet parade!</li>
-              <li>Learn more using <font-awesome-icon class="bullet-icon" icon="book-open" style="color: #f4ba3e" /> and <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> <strong><span style="color: #f4ba3e">(upper-left)</span></strong>.   </li>
+              <li>Learn more using <font-awesome-icon class="bullet-icon" icon="info" style="color: #f4ba3e" /> and <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> <strong><span style="color: #f4ba3e">(upper-left)</span></strong>.   </li>
             </ol>
           </div>
 
@@ -85,7 +85,7 @@
       <div id="left-buttons">
         <icon-button
           v-model="showTextSheet"
-          fa-icon="book-open"
+          fa-icon="info"
           :color="buttonColor"
           :tooltip-text="showTextSheet ? 'Hide Info' : 'Learn More'"
           tooltip-location="start"
@@ -391,7 +391,7 @@
     </v-dialog>
 
 
-    <!-- This dialog contains the informational content that is displayed when the book icon is clicked -->
+    <!-- This dialog contains the informational content that is displayed when the info icon is clicked -->
 
     <v-dialog
       :style="cssVars"
