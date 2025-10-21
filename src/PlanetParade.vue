@@ -433,22 +433,16 @@
           <v-window-item>
             <v-card class="no-bottom-border-radius scrollable">
               <v-card-text class="info-text no-bottom-border-radius">
-                <h3>What is the planet parade?</h3>
+                <h3>What is a planet parade?</h3>
                 <p>
-                  During February 2025, seven planets&#8212;Mercury, Saturn, Neptune, Venus, Uranus, Jupiter, and Mars&#8212;will be visible in the night sky all at once! 
+                  A planet parade occurs when four or more planets are visible in the night sky at once. Even more rare and notable are parades where six, or even all seven other planets&#8212;Mercury, Venus, Mars, Jupiter, Saturn, Uranus, and Neptune&#8212;are visible in the sky together. The most recent seven-planet parade occurred in February 2025. The next six-planet parade will occur in February 2026.
                 </p>
                 <p> 
-                  Which planets will be visible to your eye depends on how dark your night sky is. For most of the month, from a reasonably dark, clear sky, you should be able to see four of the seven planets (Saturn, Venus, Jupiter, and Mars) by eye. Uranus and Neptune will also be up, but you will likely need binoculars or a small telescope to see them.
+                  Which planets will be visible to your eye depends on how dark your night sky is. Starting around mid-February 2026, from a reasonably dark, clear sky, you should be able to see four of the six planets (Venus, Mercury, Saturn, and Jupiter) by eye. Neptune and Uranus will also be up, but you will likely need binoculars or a small telescope to see them.
                 </p> 
+                <h3>Cool! How do I see a planet parade?</h3>
                 <p>
-                  At the end of February, Mercury, which is usually difficult to spot, will move far enough away from the Sun to also become visible.
-                </p>
-                <h3>Cool! How do I see the planet parade?</h3>
-                <p>
-                  The best time to see the planet parade will be shortly after it gets dark, maybe 20-30 minutes after sunset. In the Northern Hemisphere, you'll want a clear view towards the southern half of the sky, from west to east. 
-                </p>
-                <p>
-                  You can use this resource to simulate the planet parade where you are.
+                  You can use this resource to see which planets are visible in the sky on a given date. 
                 </p>
                 <ul>
                   <li>Click <font-awesome-icon class="bullet-icon" icon="location-dot"/> in the top-center of the view and choose your location. (The default location is Cambridge, MA.)</li>
@@ -457,36 +451,33 @@
                     If <span style="color: var(--accent-color)">Horizon/Sky</span> is checked, you can see the Sun rise above the horizon in the morning and set in the evening. The sky will lighten and darken with the Sun's changing position. 
                   </li>
                   <li>
-                    Display the cardinal directions in the view to help orient yourself by checking <span style="color: var(--accent-color)">Sky Grid</span>.
+                    Check <span style="color: var(--accent-color)">Sky Grid</span> to display the cardinal directions and/or check <span style="color: var(--accent-color)">Constellations</span> to help orient yourself .
                   </li>
                 </ul>
                 <h3>How do I find my way around the sky?</h3>
                 <p>
-                  Here are some tips for finding the planets in the sky from the Northern Hemisphere.
+                  Here are some tips for finding the planets in the sky.
                 </p>
                 <ul>
                   <li>
-                    Venus is the brightest planet and should be easiest to spot above the western horizon.
+                    Venus, Jupiter, Saturn, and Mars are the brightest planets and usually the easiest to spot. 
                   </li>
                   <li>
-                    Once you've found Venus, look down toward the horizon to find Saturn.
+                    Depending on where Venus and Mercury are in their orbits around the Sun, they will either be visible just after sunset (if they are "following" the Sun) or just before sunrise (if they are "ahead of" the Sun).
                   </li>
                   <li>
-                     Imagine a line between Saturn and Venus that points along a big arc towards Jupiter (which is above and to the right of Orion).
-                  </li>
-                  <li> 
-                    Keep following that path to a bright, red object, which is Mars.
+                    If Venus is "following" the Sun and visible in the evening, you can find it just above the western horizon for a short time after sunset. (If it is "ahead of" the Sun and visible in the morning before sunrise, you can see it above the eastern horizon.)
                   </li>
                   <li>
-                    Mercury's position will change throughout the month, but it will be near the horizon, close to Venus and Saturn.
+                    If <span style="color: var(--accent-color)">Ecliptic</span> is checked, you can see a magenta arc that passes through all the planets. The ecliptic is the path that the Sun appears to follow over the course of a year. All the planets (and the Moon) also move roughly along the ecliptic. Imagine that arc in your sky to find all the planets that are above the horizon.
                   </li>
                 </ul> 
-                <h3>What is the significance of the planet parade?</h3>
+                <h3>What is the significance of a planet parade?</h3>
                 <p>
-                  The planet parade happens when all the planets happen to be on the same side of their orbits around the Sun as Earth, so they all are on Earth's night-time side. (When a planet is on the opposite side of the Sun during Earth, that means it is up in the sky during the day when the Sun outshines it.) 
+                  A seven-planet parade happens when all the planets happen to be on the same side of their orbits around the Sun as Earth, so they all are on Earth's night-time side. (When a planet is on the opposite side of the Sun from Earth, that means it is up in our sky during the day when the Sun outshines it.) 
                 </p>
                 <p>
-                  <strong>The planets are not really all in a line.</strong> It only appears that way from Earth because Earth and the other planets all orbit the Sun in roughly the same plane (as if they were on a vinyl record). From Earth's point of view, all the other solar system objects appear to move along a circular path around the sky, which ancient astronomers called the "ecliptic." The <span style="color: var(--accent-color)">Ecliptic</span> is displayed as a purple or magenta path in the virtual sky. 
+                  <strong>The planets are not really all in a line.</strong> It only appears that way from Earth because Earth and the other planets all orbit the Sun in roughly the same plane (as if they were on a vinyl record). From Earth's point of view, all the other solar system objects appear to move along a circular path around the sky, which ancient astronomers called the "ecliptic."  
                 </p>
                 <p>
                   Click <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> in the upper left to watch a (silent) video showing an overhead view of the planets and how their positions lead to the planet parade.
