@@ -20,7 +20,7 @@ import { FocusTrap } from "focus-trap-vue";
 
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
-  faBookOpen,
+  faInfo,
   faChevronDown,
   faChevronUp,
   faCircleXmark,
@@ -41,7 +41,7 @@ import {
   faHouse,
 } from "@fortawesome/free-solid-svg-icons";
 
-library.add(faBookOpen);
+library.add(faInfo);
 library.add(faChevronDown);
 library.add(faChevronUp);
 library.add(faCircleXmark);
