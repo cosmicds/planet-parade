@@ -1452,9 +1452,11 @@ li {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-grow: 1;
 
   .icon-wrapper {
     width: 30%;
+    max-width: 3.75em; // appprix 57px
     height: 20%;
     flex-shrink: 0;
   }
@@ -1464,7 +1466,7 @@ li {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
 
   #my-location-label {
