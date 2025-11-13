@@ -49,7 +49,7 @@
               </strong>
               to update, or press <font-awesome-icon class="bullet-icon" icon="play" style="color: #f4ba3e" /> to advance time.</li>
               <li>Go outdoors and find the planet parade!</li>
-              <li>Learn more using <font-awesome-icon class="bullet-icon" icon="book-open" style="color: #f4ba3e" /> and <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> <strong><span style="color: #f4ba3e">(upper-left)</span></strong>.   </li>
+              <li>Learn more using <font-awesome-icon class="bullet-icon" icon="info" style="color: #f4ba3e" /> and <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> <strong><span style="color: #f4ba3e">(upper-left)</span></strong>.   </li>
             </ol>
           </div>
 
@@ -83,9 +83,68 @@
 
     <div id="top-content">
       <div id="left-buttons">
+        <div id="location-info">
+          <icon-button
+            v-model="showLocationSelector"
+            fa-icon="location-dot"
+            :color="buttonColor"
+            tooltip-text="Select Location"
+            tooltip-location="start"
+          ></icon-button>
+          <v-dialog
+            v-model="showLocationSelector"
+            max-width="fit-content"
+            transition="slide-y-transition"
+          >
+            <v-card>
+              <div id="geolocation-close">
+                <font-awesome-icon
+                  style="cursor: pointer; z-index: 1000;"
+                  icon="xmark"
+                  size="xl"
+                  @click="showLocationSelector = false"
+                  @keyup.enter="showLocationSelector = false"
+                  tabindex="0"
+                  color="black"
+                ></font-awesome-icon>
+              </div>
+              <div id="geolocation-controls">
+                <geolocation-button
+                  id="location"
+                  size="30px"
+                  density="default"
+                  elevation="5"
+                  :color="accentColor"
+                  @geolocation="selectedLocation = {longitudeDeg: $event.longitude, latitudeDeg: $event.latitude}"
+                />
+                <location-search
+                  :class="['location-search']"
+                  small
+                  button-size="xl"
+                  :accent-color="accentColor"
+                  :search-provider="searchProvider"
+                  @set-location="setLocationFromSearchFeature"
+                  @error="searchErrorMessage = $event"
+                >
+                </location-search>
+              </div>
+              <location-selector
+                :model-value="selectedLocation"
+                @update:modelValue="updateLocationFromMap"
+              />
+
+            </v-card>
+          </v-dialog>
+          <div tabindex="0" id="my-location-label"  @click="showLocationSelector=true" @keyup.enter="showLocationSelector=true">
+            <div>View from:</div>
+            <div>{{ selectedLocationText != '' ? selectedLocationText : 'Cambridge, MA (default)' }}</div> 
+          </div>
+        </div>
+
+
         <icon-button
           v-model="showTextSheet"
-          fa-icon="book-open"
+          fa-icon="info"
           :color="buttonColor"
           :tooltip-text="showTextSheet ? 'Hide Info' : 'Learn More'"
           tooltip-location="start"
@@ -100,60 +159,7 @@
         >
         </icon-button>
       </div>
-      <div id="center-buttons">
-        <icon-button
-          v-model="showLocationSelector"
-          fa-icon="location-dot"
-          :color="buttonColor"
-          tooltip-text="Select Location"
-          tooltip-location="start"
-        ></icon-button>
-        <v-dialog
-          v-model="showLocationSelector"
-          max-width="fit-content"
-          transition="slide-y-transition"
-        >
-          <v-card>
-            <div id="geolocation-close">
-              <font-awesome-icon
-                style="cursor: pointer; z-index: 1000;"
-                icon="xmark"
-                size="xl"
-                @click="showLocationSelector = false"
-                @keyup.enter="showLocationSelector = false"
-                tabindex="0"
-                color="black"
-              ></font-awesome-icon>
-            </div>
-            <div id="geolocation-controls">
-              <geolocation-button
-                id="location"
-                size="30px"
-                density="default"
-                elevation="5"
-                :color="accentColor"
-                @geolocation="selectedLocation = {longitudeDeg: $event.longitude, latitudeDeg: $event.latitude}"
-              />
-              <location-search
-                :class="['location-search']"
-                small
-                button-size="xl"
-                :accent-color="accentColor"
-                :search-provider="searchProvider"
-                @set-location="setLocationFromSearchFeature"
-                @error="searchErrorMessage = $event"
-              >
-              </location-search>
-            </div>
-            <location-selector
-              :model-value="selectedLocation"
-              @update:modelValue="updateLocationFromMap"
-            />
 
-          </v-card>
-        </v-dialog>
-        <span tabindex="0" id="my-location-label" class="elevation-1" @click="showLocationSelector=true" @keyup.enter="showLocationSelector=true">{{ xSmallSize ? 'Location' : 'Current location'}}: {{ selectedLocationText != '' ? selectedLocationText : 'Cambridge, MA (default)' }}</span>
-      </div>
       <div id="right-buttons">
         <div id="controls" class="collapsable-control control-icon-wrapper">
           <div class="controls-top-row">
@@ -184,7 +190,7 @@
         
         <div id="planet-visibility-box" class="collapsable-control control-icon-wrapper">
           <div class="controls-top-row planet-visibility">
-            <div class="planet-visibility-title">Above Horizon</div>
+            <div class="planet-visibility-title">Risen</div>
             <font-awesome-icon
               size="lg"
               class="tab-focusable"
@@ -388,7 +394,7 @@
     </v-dialog>
 
 
-    <!-- This dialog contains the informational content that is displayed when the book icon is clicked -->
+    <!-- This dialog contains the informational content that is displayed when the info icon is clicked -->
 
     <v-dialog
       :style="cssVars"
@@ -430,22 +436,16 @@
           <v-window-item>
             <v-card class="no-bottom-border-radius scrollable">
               <v-card-text class="info-text no-bottom-border-radius">
-                <h3>What is the planet parade?</h3>
+                <h3>What is a planet parade?</h3>
                 <p>
-                  During February 2025, seven planets&#8212;Mercury, Saturn, Neptune, Venus, Uranus, Jupiter, and Mars&#8212;will be visible in the night sky all at once! 
+                  A planet parade occurs when four or more planets are visible in the night sky at once. Even more rare and notable are parades where six, or even all seven other planets&#8212;Mercury, Venus, Mars, Jupiter, Saturn, Uranus, and Neptune&#8212;are visible in the sky together. The most recent seven-planet parade occurred in February 2025. The next six-planet parade will occur in February 2026.
                 </p>
                 <p> 
-                  Which planets will be visible to your eye depends on how dark your night sky is. For most of the month, from a reasonably dark, clear sky, you should be able to see four of the seven planets (Saturn, Venus, Jupiter, and Mars) by eye. Uranus and Neptune will also be up, but you will likely need binoculars or a small telescope to see them.
+                  Which planets will be visible to your eye depends on how dark your night sky is. Starting around mid-February 2026, from a reasonably dark, clear sky, you should be able to see four of the six planets (Venus, Mercury, Saturn, and Jupiter) by eye. Neptune and Uranus will also be up, but you will likely need binoculars or a small telescope to see them.
                 </p> 
+                <h3>Cool! How do I see a planet parade?</h3>
                 <p>
-                  At the end of February, Mercury, which is usually difficult to spot, will move far enough away from the Sun to also become visible.
-                </p>
-                <h3>Cool! How do I see the planet parade?</h3>
-                <p>
-                  The best time to see the planet parade will be shortly after it gets dark, maybe 20-30 minutes after sunset. In the Northern Hemisphere, you'll want a clear view towards the southern half of the sky, from west to east. 
-                </p>
-                <p>
-                  You can use this resource to simulate the planet parade where you are.
+                  You can use this resource to see which planets are visible in the sky on a given date. 
                 </p>
                 <ul>
                   <li>Click <font-awesome-icon class="bullet-icon" icon="location-dot"/> in the top-center of the view and choose your location. (The default location is Cambridge, MA.)</li>
@@ -454,36 +454,33 @@
                     If <span style="color: var(--accent-color)">Horizon/Sky</span> is checked, you can see the Sun rise above the horizon in the morning and set in the evening. The sky will lighten and darken with the Sun's changing position. 
                   </li>
                   <li>
-                    Display the cardinal directions in the view to help orient yourself by checking <span style="color: var(--accent-color)">Sky Grid</span>.
+                    Check <span style="color: var(--accent-color)">Sky Grid</span> to display the cardinal directions and/or check <span style="color: var(--accent-color)">Constellations</span> to help orient yourself .
                   </li>
                 </ul>
                 <h3>How do I find my way around the sky?</h3>
                 <p>
-                  Here are some tips for finding the planets in the sky from the Northern Hemisphere.
+                  Here are some tips for finding the planets in the sky.
                 </p>
                 <ul>
                   <li>
-                    Venus is the brightest planet and should be easiest to spot above the western horizon.
+                    Venus, Jupiter, Saturn, and Mars are the brightest planets and usually the easiest to spot. 
                   </li>
                   <li>
-                    Once you've found Venus, look down toward the horizon to find Saturn.
+                    Depending on where Venus and Mercury are in their orbits around the Sun, they will either be visible just after sunset (if they are "following" the Sun) or just before sunrise (if they are "ahead of" the Sun).
                   </li>
                   <li>
-                     Imagine a line between Saturn and Venus that points along a big arc towards Jupiter (which is above and to the right of Orion).
-                  </li>
-                  <li> 
-                    Keep following that path to a bright, red object, which is Mars.
+                    If Venus is "following" the Sun and visible in the evening, you can find it just above the western horizon for a short time after sunset. (If it is "ahead of" the Sun and visible in the morning before sunrise, you can see it above the eastern horizon.)
                   </li>
                   <li>
-                    Mercury's position will change throughout the month, but it will be near the horizon, close to Venus and Saturn.
+                    If <span style="color: var(--accent-color)">Ecliptic</span> is checked, you can see a magenta arc that passes through all the planets. The ecliptic is the path that the Sun appears to follow over the course of a year. All the planets (and the Moon) also move roughly along the ecliptic. Imagine that arc in your sky to find all the planets that are above the horizon.
                   </li>
                 </ul> 
-                <h3>What is the significance of the planet parade?</h3>
+                <h3>What is the significance of a planet parade?</h3>
                 <p>
-                  The planet parade happens when all the planets happen to be on the same side of their orbits around the Sun as Earth, so they all are on Earth's night-time side. (When a planet is on the opposite side of the Sun during Earth, that means it is up in the sky during the day when the Sun outshines it.) 
+                  A seven-planet parade happens when all the planets happen to be on the same side of their orbits around the Sun as Earth, so they all are on Earth's night-time side. (When a planet is on the opposite side of the Sun from Earth, that means it is up in our sky during the day when the Sun outshines it.) 
                 </p>
                 <p>
-                  <strong>The planets are not really all in a line.</strong> It only appears that way from Earth because Earth and the other planets all orbit the Sun in roughly the same plane (as if they were on a vinyl record). From Earth's point of view, all the other solar system objects appear to move along a circular path around the sky, which ancient astronomers called the "ecliptic." The <span style="color: var(--accent-color)">Ecliptic</span> is displayed as a purple or magenta path in the virtual sky. 
+                  <strong>The planets are not really all in a line.</strong> It only appears that way from Earth because Earth and the other planets all orbit the Sun in roughly the same plane (as if they were on a vinyl record). From Earth's point of view, all the other solar system objects appear to move along a circular path around the sky, which ancient astronomers called the "ecliptic."  
                 </p>
                 <p>
                   Click <font-awesome-icon class="bullet-icon" icon="video" style="color: #f4ba3e" /> in the upper left to watch a (silent) video showing an overhead view of the planets and how their positions lead to the planet parade.
@@ -912,8 +909,6 @@ const dateTime = computed(() => new Date(selectedTime.value));
 const smallSize = computed(() => smAndDown.value);
 
 const mobile = computed(() => smallSize.value && touchscreen);
-
-const xSmallSize = computed(() => xs.value);
 
 /* This lets us inject component data into element CSS */
 const cssVars = computed(() => {
@@ -1454,25 +1449,31 @@ li {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  flex-grow: 1;
+
+  .icon-wrapper {
+    width: 30%;
+    max-width: 3.75em; // appprix 57px
+    height: 20%;
+    flex-shrink: 0;
+  }
 }
 
-#center-buttons {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+#location-info {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 1rem;
-  
+  justify-content: flex-start;
+  gap: 10px;
+
   #my-location-label {
-    background-color: #ccc;
-    padding-inline: 5px;
-    padding-block: 2px;
-    border-radius: 1em;
-    color: black;
     font-size: var(--default-font-size);
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    color: var(--accent-color);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    font-weight: bold;
     pointer-events: auto;
     cursor:pointer
   }
@@ -1575,6 +1576,7 @@ li {
     line-height: calc(1 * var(--default-line-height));
     margin-bottom: 5px;
     margin-right: 5px;
+    font-weight: bold;
   }
   
   #planet-visibility-label {
