@@ -14,6 +14,7 @@
     <!-- This contains the splash screen content -->
 
     <splash-screen 
+      v-model="showSplashScreen"
       title="Planetary Parade" 
       :cssVars="cssVars" 
       @close="closeSplashScreen"
@@ -322,9 +323,30 @@
       </div>
     </div>
 
+    <!-- WebGL2 not enabled dialog -->
+    <v-dialog
+      class="error-dialog"
+      :style="cssVars"
+      v-model="showWebGL2Dialog"
+      persistent
+    >
+      <v-card>
+        <div class="error-message">
+          <p>
+            <strong>This app requires WebGL 2</strong>
+          </p>
+          <p class="mt-2">
+            Check your browser's settings and enable WebGL 2 ("graphics acceleration" on some browsers).
+          </p>
+          <p class="mt-2">
+            You can check whether your browser supports WebGL 2
+            and get assistance <a href="https://get.webgl.org/webgl2/" target="_blank" rel="noopener noreferrer">here</a>.
+          </p>
+        </div>
+      </v-card>
+    </v-dialog>
 
     <!-- This dialog contains the video that is displayed when the video icon is clicked -->
-
     <v-dialog
       id="video-container"
       v-model="showVideoSheet"
@@ -701,6 +723,7 @@ const optOut = typeof storedOptOut === "string" ? storedOptOut === "true" : null
 const responseOptOut = ref(optOut);
 
 const showRating = ref(false);
+const showWebGL2Dialog = ref(false);
 
 const geocodingOptions = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -753,6 +776,15 @@ const localSelectedDate = computed({
     selectedTime.value = new Date(newTime).getTime();
   }
 });
+
+function isWebGL2Enabled(): boolean {
+  // It doesn't seem like there's a better way to do this than just to try and get a context
+  // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/By_example/Detect_WebGL
+  // NB: The engine specifically wants a webgl2 context
+  const canvas = document.createElement("canvas");
+  const gl = canvas.getContext("webgl2");
+  return gl instanceof WebGL2RenderingContext;
+}
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -835,6 +867,20 @@ const neptuneVis = computed(() => planetIsVisible(SolarSystemObjects.neptune, da
 
 onMounted(() => {
   store.waitForReady().then(async () => {
+
+    if (!isWebGL2Enabled()) {
+      closeSplashScreen();
+      showWebGL2Dialog.value = true; 
+      layersLoaded.value = true;
+      positionSet.value = true;
+      inIntro.value = false;
+      // eslint-disable-next-lint @typescript-eslint/ban-ts-comment
+      // @ts-expect-error `canvas` is defined
+      WWTControl.singleton.canvas.setAttribute("hidden", "true");
+      WWTControl.singleton.renderOneFrame = function() {};
+      return;
+    }
+
     skyBackgroundImagesets.forEach(iset => backgroundImagesets.push(iset));
 
     // If there are layers to set up, do that here!
@@ -1297,7 +1343,7 @@ watch(showVideoSheet, (show: boolean) => {
 watch(inNorthernHemisphere, (_inNorth: boolean) => resetAltAzGridText());
 
 watch(showSplashScreen, (show: boolean) => {
-  if (!show) {
+  if (!(show || showWebGL2Dialog)) {
     inIntro.value = true;
   }
 });
@@ -2094,4 +2140,21 @@ video {
   }
 }
 
+.error-dialog {
+  width: auto;
+  height: auto;
+  max-width: 425px;
+  border-radius: 10px;
+
+  .v-card {
+    border-radius: 10px !important;
+  }
+}
+
+.error-message {
+  padding: 1rem;
+  border: 1px solid var(--accent-color);
+  text-align: center;
+  border-radius: 10px;
+}
 </style>
