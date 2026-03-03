@@ -604,18 +604,35 @@
         }"
       >
         <template #footer>
-          <v-btn
-            class="privacy-button"
-            color="#BDBDBD"
-            href="https://www.cfa.harvard.edu/privacy-statement"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-          Privacy Policy
-          </v-btn>
+          <div id="user-experience-footer">
+            <v-btn
+              class="rating-opt-put"
+              color="#BDBDBD"
+              size="small"
+              variant="text"
+              @click="() => {
+                showRating = false;
+                ratingOptOut = true;
+              }"
+            >
+            Don't show again
+            </v-btn>
+            <v-btn
+              class="privacy-button"
+              color="#BDBDBD"
+              @click="showRatingPrivacyPolicy = true"
+              @keyup.enter="showRatingPrivacyPolicy = true"
+              size="small"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+            What is this?
+            </v-btn> 
+          </div>
         </template>
       </user-experience>
-      </v-expand-transition>
+    </v-expand-transition>
+    <cds-privacy-policy v-model="showRatingPrivacyPolicy" />
   </v-container>
   </div>
 </v-app>
@@ -642,9 +659,11 @@ const STORY_RATING_URL = `${API_BASE_URL}/planet-parade/user-experience`;
 
 const UUID_KEY = "eclipse-mini-uuid" as const;
 const OPT_OUT_KEY = "eclipse-mini-optout" as const;
+const RATING_OPT_OUT_KEY = "eclipse-mini-rating-optout" as const;
 const SKIP_INTRO_CONTENT_KEY = "skip-intro-content" as const;
 const maybeUUID = window.localStorage.getItem(UUID_KEY);
 const storedOptOut = window.localStorage.getItem(OPT_OUT_KEY);
+const storedRatingOptOut = window.localStorage.getItem(RATING_OPT_OUT_KEY);
 const skipIntroContent = window.localStorage.getItem(SKIP_INTRO_CONTENT_KEY)?.toLowerCase() === "true";
 const existingUser = maybeUUID !== null;
 const uuid = maybeUUID ?? v4();
@@ -722,8 +741,14 @@ const wwtStats = markRaw({
 const optOut = typeof storedOptOut === "string" ? storedOptOut === "true" : null;
 const responseOptOut = ref(optOut);
 
+// If the user has opted out of all data collection, don't ask them the question
+const ratingOptedOut = typeof storedRatingOptOut === "string" ? storedRatingOptOut === "true" : null;
+const ratingOptOut = ref(responseOptOut.value || ratingOptedOut);
+let ratingTimeout: ReturnType<typeof setTimeout> | null = null;
+
 const showRating = ref(false);
 const showWebGL2Dialog = ref(false);
+const showRatingPrivacyPolicy = ref(false);
 
 const geocodingOptions = {
   // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -784,6 +809,13 @@ function isWebGL2Enabled(): boolean {
   const canvas = document.createElement("canvas");
   const gl = canvas.getContext("webgl2");
   return gl instanceof WebGL2RenderingContext;
+}
+
+function clearRatingTimeout() {
+  if (ratingTimeout !== null) {
+    clearTimeout(ratingTimeout);
+    ratingTimeout = null;
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -913,8 +945,7 @@ onMounted(() => {
     //   resetCamera();
     // });
     
-    createUserEntry();
-    ratingDisplaySetup();
+    doUserSetup();
 
     setInterval(() => {
       if (playing.value) {
@@ -1064,30 +1095,6 @@ function updateLocationFromMap(location: LocationDeg) {
   userSelectedMapLocations.push([location.latitudeDeg, location.longitudeDeg]);
 }
 
-async function ratingDisplaySetup() {
-  if (responseOptOut.value) {
-    return;
-  }
-
-  const existsResponse = await fetch(`${STORY_RATING_URL}/${uuid}`, {
-    method: "GET",
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
-  });
-
-  // NB: If we want to ask multiple questions, this logic can be adjusted
-  const existsContent = await existsResponse.json();
-  const exists = existsResponse.status === 200 && existsContent.ratings?.length > 0;
-
-  if (exists) {
-    return;
-  }
-
-  setTimeout(() => {
-    showRating.value = true; 
-  }, 40_000);
-}
-
 function updateUserExperienceInfo(rating: UserExperienceRating | null, comments: string | null) {
   const body: Record<string, unknown> = {
     uuid,
@@ -1112,7 +1119,7 @@ function updateUserExperienceInfo(rating: UserExperienceRating | null, comments:
   });
 }
 
-async function createUserEntry() {
+async function doUserSetup() {
   if (responseOptOut.value) {
     return;
   }
@@ -1123,45 +1130,66 @@ async function createUserEntry() {
     headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" },
   });
   const content = await response.json();
-  const exists = response.status === 200 && content.response?.user_uuid != undefined;
-  if (exists) {
+  const userExists = response.status === 200 && content.response?.user_uuid != undefined;
+
+  if (!userExists) {
+    fetch(`${STORY_DATA_URL}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "",
+      },
+      body: JSON.stringify({
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        user_uuid: uuid,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        user_selected_search_locations: userSelectedSearchLocations,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        user_selected_map_locations: userSelectedMapLocations,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        app_time_ms: 0, info_time_ms: 0, video_time_ms: 0,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        video_opened: videoOpened, video_played: videoPlayed,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_time_reset_count: wwtStats.timeResetCount,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_reverse_count: wwtStats.reverseCount,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_play_pause_count: wwtStats.playPauseCount,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_speedups: wwtStats.speedups,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_slowdowns: wwtStats.slowdowns,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_rate_selections: wwtStats.rateSelections,
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        wwt_start_stop_times: [wwtStats.startTime, selectedTime.value],
+      }),
+    });
+  }
+
+  if (ratingOptOut.value) {
     return;
   }
 
-  fetch(`${STORY_DATA_URL}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
+  let gaveRating = false;
+  if (userExists) {
+    const ratingResponse = await fetch(`${STORY_RATING_URL}/${uuid}`, {
+      method: "GET",
       // eslint-disable-next-line @typescript-eslint/naming-convention
-      "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "",
-    },
-    body: JSON.stringify({
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      user_uuid: uuid,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      user_selected_search_locations: userSelectedSearchLocations,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      user_selected_map_locations: userSelectedMapLocations,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      app_time_ms: 0, info_time_ms: 0, video_time_ms: 0,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      video_opened: videoOpened, video_played: videoPlayed,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_time_reset_count: wwtStats.timeResetCount,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_reverse_count: wwtStats.reverseCount,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_play_pause_count: wwtStats.playPauseCount,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_speedups: wwtStats.speedups,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_slowdowns: wwtStats.slowdowns,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_rate_selections: wwtStats.rateSelections,
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      wwt_start_stop_times: [wwtStats.startTime, selectedTime.value],
-    }),
-  });
+      headers: { "Authorization": process.env.VUE_APP_CDS_API_KEY ?? "" }
+    });
+
+    const ratingContent = await ratingResponse.json();
+    gaveRating = ratingResponse.status === 200 && ratingContent.ratings?.length > 0;
+  }
+
+  if (!gaveRating) {
+    ratingTimeout = setTimeout(() => {
+      showRating.value = true; 
+    }, 40_000);
+  }
 }
 
 function resetData() {
@@ -1343,7 +1371,7 @@ watch(showVideoSheet, (show: boolean) => {
 watch(inNorthernHemisphere, (_inNorth: boolean) => resetAltAzGridText());
 
 watch(showSplashScreen, (show: boolean) => {
-  if (!(show || showWebGL2Dialog)) {
+  if (!(show || showWebGL2Dialog.value)) {
     inIntro.value = true;
   }
 });
@@ -1359,6 +1387,19 @@ watch(inIntro, (intro: boolean) => {
 watch(responseOptOut, (optOut: boolean | null) => {
   if (optOut !== null) {
     window.localStorage.setItem(OPT_OUT_KEY, String(optOut));
+    if (optOut) {
+      clearRatingTimeout();
+      showRating.value = false;
+    }
+  }
+});
+
+watch(ratingOptOut, (optOut: boolean | null) => {
+  if (optOut !== null) {
+    window.localStorage.setItem(RATING_OPT_OUT_KEY, String(optOut));
+    if (optOut) {
+      clearRatingTimeout();
+    }
   }
 });
 </script>
@@ -2128,10 +2169,11 @@ video {
     padding: 0;
   }
 
-  .privacy-button {
-    font-size: 10px;
-    position: absolute;
-    left: 5px;
+  #user-experience-footer {
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
   }
 
   .v-btn.bg-success {

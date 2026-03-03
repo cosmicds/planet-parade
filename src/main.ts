@@ -15,6 +15,7 @@ import PlaybackControl from './components/PlaybackControl.vue';
 import SpeedControl from "./components/SpeedControl.vue";
 import TimeDisplay from "./components/TimeDisplay.vue";
 import SplashScreen from "./SplashScreen.vue";
+import CDSPrivacyPolicy from "./CDSPrivacyPolicy.vue";
 import { FocusTrap } from "focus-trap-vue";
 
 
@@ -105,6 +106,7 @@ createApp(PlanetParade, {
   .component('splash-screen', SplashScreen)
   .component('user-experience', UserExperience)
   .component('focus-trap', FocusTrap)
+  .component('cds-privacy-policy', CDSPrivacyPolicy)
 
   // Mount
   .mount("#app");
