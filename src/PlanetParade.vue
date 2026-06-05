@@ -945,7 +945,7 @@ onMounted(() => {
     //   resetCamera();
     // });
     
-    doUserSetup();
+    // doUserSetup();
 
     setInterval(() => {
       if (playing.value) {
@@ -1119,7 +1119,7 @@ function updateUserExperienceInfo(rating: UserExperienceRating | null, comments:
   });
 }
 
-async function doUserSetup() {
+async function _doUserSetup() {
   if (responseOptOut.value) {
     return;
   }
